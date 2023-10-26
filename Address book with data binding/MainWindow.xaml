@@ -6,6 +6,15 @@
         xmlns:local="clr-namespace:Address_book_with_data_binding"
         mc:Ignorable="d"
         Title="Address book" Height="450" Width="650" MinHeight="300" MinWidth="570" Icon="/icons8-книга-50.png">
+    
+    <Window.CommandBindings> 
+        <CommandBinding Command="local:DataCommands.Add" Executed="AddCommand" CanExecute="AddCommand_CanExecute" />
+        <CommandBinding Command="local:DataCommands.Modify" Executed="ModifyCommand" CanExecute="ModifyCommand_CanExecute" />
+        <CommandBinding Command="local:DataCommands.Delete" Executed="DeleteCommand" CanExecute="DeleteCommand_CanExecute" />
+        <CommandBinding Command="local:DataCommands.Save" Executed="SaveCommand" CanExecute="SaveCommand_CanExecute" />
+        <CommandBinding Command="local:DataCommands.Load" Executed="LoadCommand" CanExecute="LoadCommand_CanExecute" />
+    </Window.CommandBindings> 
+
     <Window.Resources>
         <local:ContactManager x:Key="contactManager" />
         <local:StringIsNullOrEmptyToVisibilityConverter x:Key="StringIsNullOrEmptyToVisibilityConverter" /> 
@@ -30,6 +39,15 @@
             <Style.Triggers>
                 <Trigger Property="IsMouseOver" Value="True">
                     <Setter Property="Background" Value="#9575CD"/>
+                </Trigger>
+                <Trigger Property="IsMouseOver" Value="True">
+                    <Setter Property="Background" Value="#9575CD"/>
+                </Trigger>
+                <Trigger Property="IsEnabled" Value="True">
+                    <Setter Property="Background" Value="#673AB7"/>
+                </Trigger>
+                <Trigger Property="IsEnabled" Value="False">
+                    <Setter Property="Background" Value="#A9A9A9"/>
                 </Trigger>
             </Style.Triggers>
         </Style>
@@ -76,15 +94,16 @@
     <ScrollViewer Background="#E1BEE7">
         <StackPanel DataContext="{StaticResource contactManager}">
             <WrapPanel Orientation="Horizontal" Margin="10" VerticalAlignment="Center">
-                <TextBox Style="{StaticResource TextBoxStyleWithPlaceholder}" Name="personName" Text="{Binding SelectedPerson.Name}" Tag="Имя" MinWidth="150"/>
-                <TextBox Style="{StaticResource TextBoxStyleWithPlaceholder}" Name="personAddress" Text="{Binding SelectedPerson.Address}" Tag="Адрес" MinWidth="150"/>
-                <TextBox Style="{StaticResource TextBoxStyleWithPlaceholder}" Name="personPhone" Text="{Binding SelectedPerson.Phone}" Tag="Телефон" MinWidth="150" />
+                <TextBox Style="{StaticResource TextBoxStyleWithPlaceholder}" Name="personName" Text="{Binding SelectedPerson.Name}" TextChanged="TextBox_TextChanged" Tag="Имя" MinWidth="150"/>
+                <TextBox Style="{StaticResource TextBoxStyleWithPlaceholder}" Name="personAddress" Text="{Binding SelectedPerson.Address}" TextChanged="TextBox_TextChanged" Tag="Адрес" MinWidth="150"/>
+                <TextBox Style="{StaticResource TextBoxStyleWithPlaceholder}" Name="personPhone" Text="{Binding SelectedPerson.Phone}" TextChanged="TextBox_TextChanged" Tag="Телефон" MinWidth="150" />
 
-                <Button Style="{StaticResource ButtonStyle}" Width="100" Content="Добавить" Click="AddButton_Click" Margin="5"/>
-                <Button Style="{StaticResource ButtonStyle}" Width="100" Content="Изменить" Click="ModifyButton_Click" Margin="5" />
-                <Button Style="{StaticResource ButtonStyle}" Width="100" Content="Удалить" Click="DeleteButton_Click" Margin="5" />
-                <Button Style="{StaticResource ButtonStyle}" Width="100" Content="Сохранить" Click="SaveButton_Click" Margin="5"/>
-                <Button Style="{StaticResource ButtonStyle}" Width="100"  Content="Загрузить" Click="LoadButton_Click" Margin="5"/>
+                <Button Style="{StaticResource ButtonStyle}" Command="local:DataCommands.Add" Content="{Binding RelativeSource={RelativeSource Self}, Path=Command.Text}" />
+                <Button Style="{StaticResource ButtonStyle}" Command="local:DataCommands.Modify" Content="{Binding RelativeSource={RelativeSource Self}, Path=Command.Text}" />
+                <Button Style="{StaticResource ButtonStyle}" Command="local:DataCommands.Delete" Content="{Binding RelativeSource={RelativeSource Self}, Path=Command.Text}" />
+                <Button Style="{StaticResource ButtonStyle}" Command="local:DataCommands.Save" Content="{Binding RelativeSource={RelativeSource Self}, Path=Command.Text}" />
+                <Button Style="{StaticResource ButtonStyle}" Command="local:DataCommands.Load" Content="{Binding RelativeSource={RelativeSource Self}, Path=Command.Text}" />
+
             </WrapPanel>
 
             <ListBox ItemsSource="{Binding Persons}" SelectedItem="{Binding SelectedPerson, Mode=TwoWay}" Margin="10"

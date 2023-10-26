@@ -26,8 +26,86 @@ namespace Address_book_with_data_binding
     {
         public MainWindow()
         {
+            CommandBindings.Add(new CommandBinding(DataCommands.Add, AddCommand, AddCommand_CanExecute));
+            CommandBindings.Add(new CommandBinding(DataCommands.Modify, ModifyCommand, ModifyCommand_CanExecute));
+            CommandBindings.Add(new CommandBinding(DataCommands.Delete, DeleteCommand, DeleteCommand_CanExecute));
+            CommandBindings.Add(new CommandBinding(DataCommands.Save, SaveCommand, SaveCommand_CanExecute));
+            CommandBindings.Add(new CommandBinding(DataCommands.Load, LoadCommand, LoadCommand_CanExecute));
+
             InitializeComponent();
         }
+        private void AddCommand(object sender, ExecutedRoutedEventArgs e)
+        {
+            AddButton_Click(sender, e);
+        }
+
+        private void AddCommand_CanExecute(object sender, CanExecuteRoutedEventArgs e)
+        {
+            if (!string.IsNullOrWhiteSpace(personName.Text)
+                           && !string.IsNullOrWhiteSpace(personAddress.Text)
+                           && !string.IsNullOrWhiteSpace(personPhone.Text))
+            {
+                e.CanExecute = true;
+                return;
+            }
+            e.CanExecute = false;
+        }
+        private bool _isChanged = false;
+
+        private void TextBox_TextChanged(object sender, TextChangedEventArgs e)
+        {
+            _isChanged = true;
+            CommandManager.InvalidateRequerySuggested();
+        }
+
+        private void ModifyCommand(object sender, ExecutedRoutedEventArgs e)
+        {
+            ModifyButton_Click(sender, e);
+            _isChanged = false; 
+        }
+
+        private void ModifyCommand_CanExecute(object sender, CanExecuteRoutedEventArgs e)
+        {
+            e.CanExecute = _isChanged; 
+        }
+        private void DeleteCommand(object sender, ExecutedRoutedEventArgs e)
+        {
+            DeleteButton_Click(sender, e);
+        }
+
+        private void DeleteCommand_CanExecute(object sender, CanExecuteRoutedEventArgs e)
+        {
+            ContactManager contactManager = Resources["contactManager"] as ContactManager;
+            if (contactManager.Persons.Count > 0 && contactManager.SelectedPerson != null)
+            {
+                e.CanExecute = true;
+                return;
+            }
+            e.CanExecute = false;
+        }
+
+
+        private void SaveCommand(object sender, ExecutedRoutedEventArgs e)
+        {
+            SaveButton_Click(sender, e);
+        }
+
+        private void SaveCommand_CanExecute(object sender, CanExecuteRoutedEventArgs e)
+        {
+            ContactManager contactManager = Resources["contactManager"] as ContactManager;
+            e.CanExecute = contactManager?.IsDataChanged ?? false;
+        }
+
+
+        private void LoadCommand(object sender, ExecutedRoutedEventArgs e)
+        {
+            LoadButton_Click(sender, e);
+        }
+
+        private void LoadCommand_CanExecute(object sender, CanExecuteRoutedEventArgs e)
+        {
+            e.CanExecute = true;
+        } 
 
         private void AddButton_Click(object sender, RoutedEventArgs e)
         {
@@ -45,7 +123,7 @@ namespace Address_book_with_data_binding
         }
         #region  Я разорвала здесь связь, так как эта привязка противоречит моей логике. Мне не нравилось, когда изменения происходили автоматически. Я хотела, чтобы изменения применились только после нажатия на кнопку "Изменить".
 
-        private Person _tempPerson; 
+        private Person _tempPerson;
 
         private void ListBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
@@ -89,7 +167,7 @@ namespace Address_book_with_data_binding
             personAddress.Text = "";
             personPhone.Text = "";
 
-            _tempPerson = null; 
+            _tempPerson = null;
         }
 
         #endregion
@@ -167,5 +245,7 @@ namespace Address_book_with_data_binding
         }
     }
 
-    }
+   
+
+}
 

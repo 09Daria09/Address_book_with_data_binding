@@ -1,4 +1,5 @@
-﻿using System.Collections.ObjectModel;
+﻿using System;
+using System.Collections.ObjectModel;
 using System.ComponentModel;
 
 namespace Address_book_with_data_binding
@@ -47,17 +48,28 @@ namespace Address_book_with_data_binding
                 }
             }
         }
-
+        public event Action DataModified;
         public event PropertyChangedEventHandler PropertyChanged;
 
         protected virtual void OnPropertyChanged(string propertyName)
         {
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+            DataModified?.Invoke();
         }
     }
 
     public class ContactManager : INotifyPropertyChanged
     {
+        public bool IsDataChanged { get; set; } = false;
+        public ContactManager()
+        {
+            _persons.CollectionChanged += (s, e) =>
+            {
+                IsDataChanged = true;
+                OnPropertyChanged(nameof(IsDataChanged));
+            };
+        }
+
         private ObservableCollection<Person> _persons = new ObservableCollection<Person>();
         private Person _selectedPerson = new Person();
 
@@ -75,7 +87,15 @@ namespace Address_book_with_data_binding
                 }
             }
         }
-
+        public void AddPerson(Person person)
+        {
+            person.DataModified += () =>
+            {
+                IsDataChanged = true;
+                OnPropertyChanged(nameof(IsDataChanged));
+            };
+            _persons.Add(person);
+        }
         public event PropertyChangedEventHandler PropertyChanged;
 
         protected virtual void OnPropertyChanged(string propertyName)
